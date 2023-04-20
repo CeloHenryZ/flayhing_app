@@ -10,6 +10,7 @@ import '../model/produto.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:async/async.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:shared_preferences/shared_preferences.dart'
     show SharedPreferences;
@@ -28,7 +29,7 @@ class CustomCardDestaque extends StatelessWidget {
   late http.Response response;
 
   gerarUrl() {
-    var url = Uri.https('${Constants.API_ROOT_ROUTE}',
+    var url = Uri.https(Constants.API_ROOT_ROUTE,
         '${Constants.API_FOLDERS}listarTudoProdutos/${produto.id_produto}');
     return url;
   }
@@ -91,21 +92,31 @@ class CustomCardDestaque extends StatelessWidget {
                           margin:
                               const EdgeInsets.only(top: 5, bottom: 3, left: 3),
                           //width: MediaQuery.of(context).size.width / 2.5,
-                          child: Text(
+                          child: AutoSizeText(
                             produto.descricaoProduto,
                             // textAlign: TextAlign.center,
                             style: GoogleFonts.nanumGothic(
-                                fontSize:
-                                    MediaQuery.of(context).size.height >= 650
-                                        ? produto.descricaoProduto.length > 24
-                                            ? 11
-                                            : 14
-                                        : produto.descricaoProduto.length > 45
-                                            ? 6
-                                            : produto.descricaoProduto.length >= 24
-                                                ? 8
-                                                : 9,
+                                fontSize: MediaQuery.of(context).size.height >=
+                                        650
+                                    ? produto.descricaoProduto.length > 24
+                                        ? 11
+                                        : 14
+                                    : produto.descricaoProduto.length > 45
+                                        ? 6
+                                        : produto.descricaoProduto.length >= 24
+                                            ? 8
+                                            : 9,
                                 fontWeight: FontWeight.bold),
+
+                            overflowReplacement: Text(
+                                produto.descricaoProduto.length > 15
+                                    ? produto.descricaoProduto
+                                            .substring(0, 16) +
+                                        "..."
+                                    : produto.descricaoProduto + "...",
+                                style: GoogleFonts.nanumGothic(
+                                    fontWeight: FontWeight.bold)),
+                            maxLines: 2,
                           ),
                         ),
                         // width: MediaQuery.of(context).size.width / 2,

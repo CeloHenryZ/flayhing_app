@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class RegistroUsuarioController extends ChangeNotifier {
+  final _message = 'Não foi possivel salvar os dados!';
   Future<bool> saveDataUser(String nome, String cpf, String telefone) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -87,12 +88,17 @@ class RegistroUsuarioController extends ChangeNotifier {
       print(response.body);
       return true;
     }
-
+    if (response.statusCode == 422) {
+      return false;
+    }
+    if (response.statusCode == 500) {
+      return false;
+    }
     return false;
   }
 
-  Future<bool> updateDeliveryAdress(String idAdress, String idBairro, String rua,
-      String complemento, String numero) async {
+  Future<bool> updateDeliveryAdress(String idAdress, String idBairro,
+      String rua, String complemento, String numero) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('tokenUser').toString();
 
@@ -112,5 +118,22 @@ class RegistroUsuarioController extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  Future<bool> deleteUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString("tokenUser").toString();
+
+    var response = await http.delete(
+      Uri.https(Constants.API_ROOT_ROUTE,
+          '${Constants.API_FOLDERS}auth/deleteAppUser'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      prefs.setString('tokenUser', '');
+      return true;
+    }
+    return false;
   }
 }
