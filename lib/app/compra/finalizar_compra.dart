@@ -312,10 +312,12 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                               indexAdress = index;
                                               somaFreteValorFinal(double.parse(
                                                   userAdress[index]
-                                                      .bairro['valor_frete']));
+                                                      .bairro['valor_frete']
+                                                      .toString()));
                                               _valorFrete = num.parse(
                                                   userAdress[index]
-                                                      .bairro['valor_frete']);
+                                                      .bairro['valor_frete']
+                                                      .toString());
                                             });
                                             changeAdress(userAdress[index]);
                                           },
@@ -355,7 +357,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                                         SizedBox(
                                                           width: width * 0.6,
                                                           child: Text(
-                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero}, bairro ${userAdress[index].bairro['nome']}",
+                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero.toString()}, bairro ${userAdress[index].bairro['nome']}",
                                                             style: TextStyle(
                                                                 fontSize: 19),
                                                           ),
@@ -398,7 +400,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                                         SizedBox(
                                                           width: width * 0.6,
                                                           child: Text(
-                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero}, bairro ${userAdress[index].bairro['nome']}",
+                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero.toString()}, bairro ${userAdress[index].bairro['nome']}",
                                                             style: TextStyle(
                                                                 fontSize: 19),
                                                           ),
