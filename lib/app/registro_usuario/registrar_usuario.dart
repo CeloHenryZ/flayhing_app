@@ -63,7 +63,9 @@ class _RegistrarUsuarioViewState extends State<RegistrarUsuarioView> {
             child: Column(
               children: [
                 Container(
-                  width: MediaQuery.of(context).size.width * 0.5,
+                  width: MediaQuery.of(context).size.width < 600
+                      ? MediaQuery.of(context).size.width * 0.5
+                      : MediaQuery.of(context).size.width * 0.2,
                   margin: EdgeInsets.only(top: 35),
                   child: Column(
                     children: [
