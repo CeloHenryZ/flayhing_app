@@ -11,6 +11,7 @@ import 'package:loja_flyinghigh/app/cadastro/cadastro_dados_pessoais.dart';
 import 'package:loja_flyinghigh/app/providers/campanhas_list.dart';
 import 'package:loja_flyinghigh/app/providers/categorias_list.dart';
 import 'package:loja_flyinghigh/app/providers/itens_pedido_list.dart';
+import 'package:loja_flyinghigh/app/providers/ponto_config_provider.dart';
 import 'package:loja_flyinghigh/app/providers/produtos_list.dart';
 import 'package:loja_flyinghigh/app/providers/user_data_provider.dart';
 import 'package:loja_flyinghigh/app/resumo_pedido/resumo_pedido.dart';
@@ -50,7 +51,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CategoriasList()),
         ChangeNotifierProvider(create: (context) => CampanhasList()),
         ChangeNotifierProvider(create: (context) => BairrosList()),
-        ChangeNotifierProvider(create: (context) => UserDataList())
+        ChangeNotifierProvider(create: (context) => UserDataList()),
+        ChangeNotifierProvider(create: (context) => PontoConfigProvider())
       ],
       child: MaterialApp(
         localizationsDelegates: const [

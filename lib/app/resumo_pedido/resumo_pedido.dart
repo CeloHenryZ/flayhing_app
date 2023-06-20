@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:loja_flyinghigh/app/pdf/pdf_view.dart';
 import 'package:loja_flyinghigh/app/providers/itens_pedido_list.dart';
 import 'package:loja_flyinghigh/app/widgets/cardResumo.dart';
+import 'package:loja_flyinghigh/app/widgets/colors.dart';
 import 'package:loja_flyinghigh/database/database.dart';
 import 'package:loja_flyinghigh/utils/constants.dart';
 import 'package:pdf/pdf.dart';
@@ -21,6 +22,8 @@ import 'package:flutter_full_pdf_viewer/full_pdf_viewer_scaffold.dart';
 import 'package:pdf/widgets.dart' as pdfLib;
 import 'package:share_extend/share_extend.dart';
 import 'package:path_provider/path_provider.dart';
+
+Cores cor = Cores();
 
 class ResumoPedidoState extends State<ResumoPedido> {
   bool isLoading = true;
@@ -174,16 +177,16 @@ class ResumoPedidoState extends State<ResumoPedido> {
                                         pdfLib.CrossAxisAlignment.end,
                                     children: [
                                       pdfLib.Text(
-                                        'FLYING HIGH',
+                                        'MERCADO BARATÃO',
                                         style: pdfLib.TextStyle(
                                             fontSize: 18,
                                             color: PdfColors.white),
                                       ),
-                                      pdfLib.Text('Sorriso/MT',
+                                      pdfLib.Text(' ',
                                           style: pdfLib.TextStyle(
                                               fontSize: 18,
                                               color: PdfColors.white)),
-                                      pdfLib.Text('(66)9912-7896',
+                                      pdfLib.Text(' ',
                                           style: pdfLib.TextStyle(
                                               fontSize: 18,
                                               color: PdfColors.white))
@@ -686,6 +689,18 @@ class ResumoPedidoState extends State<ResumoPedido> {
       },
       child: Scaffold(
         appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(cor.cCinza3),
+                  Color(cor.cCinza22),
+                  Color(cor.cCinza22),
+                  Color(cor.cCinza3),
+                ],
+              ),
+            ),
+          ),
           leading: IconButton(
               icon: Icon(Icons.home),
               onPressed: () {
@@ -729,17 +744,15 @@ class ResumoPedidoState extends State<ResumoPedido> {
                       Container(
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.only(top: 5, left: 5, right: 5),
-                        color: Colors.white,
                         child: Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                    color: Colors.white54,
                                     margin: EdgeInsets.only(top: 5),
                                     child: Text(
-                                      ' Itens do pedido:',
+                                      'Itens do pedido:',
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w400),
@@ -749,7 +762,7 @@ class ResumoPedidoState extends State<ResumoPedido> {
                             Container(
                                 decoration: BoxDecoration(
                                     color: Colors.indigo.shade50,
-                                    borderRadius: BorderRadius.circular(10)),
+                                    borderRadius: BorderRadius.circular(30)),
                                 width: MediaQuery.of(context).size.width,
                                 height: provider.items.length <= 1 ? 105 : 205,
                                 alignment: Alignment.center,
@@ -768,16 +781,12 @@ class ResumoPedidoState extends State<ResumoPedido> {
                         ),
                       ),
                       Container(
-                        height: 50,
-                        margin: EdgeInsets.only(left: 5, right: 5),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                        ),
+                        height: 30,
+                        margin: EdgeInsets.only(left: 15, right: 15),
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Divider(thickness: 2),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -800,18 +809,14 @@ class ResumoPedidoState extends State<ResumoPedido> {
                           ],
                         ),
                       ),
+                      const Divider(thickness: 2),
                       Container(
-                        height: 50,
-                        margin: EdgeInsets.only(left: 5, right: 5),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          color: Colors.white,
-                        ),
+                        height: 30,
+                        margin: EdgeInsets.only(left: 15, right: 15),
                         child: Column(
                           mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Divider(thickness: 2),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -823,7 +828,9 @@ class ResumoPedidoState extends State<ResumoPedido> {
                                 Container(
                                   margin: EdgeInsets.only(right: 5),
                                   child: Text(
-                                    'R\$: $valorTotal',
+                                    'R\$: ' +
+                                        num.parse(valorTotal)
+                                            .toStringAsFixed(2),
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500),
@@ -834,23 +841,33 @@ class ResumoPedidoState extends State<ResumoPedido> {
                           ],
                         ),
                       ),
+                      const Divider(thickness: 2),
                       Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
                         margin: EdgeInsets.all(10),
                         height: 65,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3), //
+                            )
+                          ],
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                           color: Colors.white,
                         ),
                         child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                margin: EdgeInsets.only(left: 10),
-                                width: MediaQuery.of(context).size.width * 0.6,
+                                margin: EdgeInsets.only(left: 15),
+                                width: MediaQuery.of(context).size.width * 0.7,
                                 child: Text(
                                     'Clique no botão ao lado para fazer o download do seu pedido em PDF.',
-                                    textAlign: TextAlign.justify,
-                                    style: TextStyle(fontSize: 18)),
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(fontSize: 16)),
                               ),
                               Container(
                                 margin: EdgeInsets.only(right: 10),
@@ -865,12 +882,21 @@ class ResumoPedidoState extends State<ResumoPedido> {
                             ]),
                       ),
                       Container(
-                        height: 52.5,
-                        margin: EdgeInsets.all(10),
+                        height: 50,
+                        margin: EdgeInsets.only(
+                            top: 10, bottom: 10, right: 20, left: 20),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          gradient: LinearGradient(
-                              colors: [Colors.green, Colors.green.shade800]),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3), //
+                            )
+                          ],
+                          border: Border.all(color: Colors.green),
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          color: Colors.white,
                         ),
                         child: Container(
                           child: Column(
@@ -881,14 +907,15 @@ class ResumoPedidoState extends State<ResumoPedido> {
                                 children: [
                                   Container(
                                     width:
-                                        MediaQuery.of(context).size.width * 0.9,
+                                        MediaQuery.of(context).size.width * 0.8,
                                     margin: EdgeInsets.all(5),
-                                    child: const Text(
-                                      'Seu pedido foi realizado com sucesso!',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white),
+                                    child: Center(
+                                      child: const Text(
+                                          'Seu pedido foi realizado com sucesso!',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.lightGreen)),
                                     ),
                                   ),
                                 ],
@@ -897,8 +924,21 @@ class ResumoPedidoState extends State<ResumoPedido> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        //  margin: EdgeInsets.all(5),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3), //
+                            )
+                          ],
+                          border: Border.all(color: Colors.green),
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          color: Colors.white,
+                        ),
                         height: 140,
                         child: Center(
                           child: Padding(

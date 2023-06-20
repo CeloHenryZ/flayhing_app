@@ -6,6 +6,7 @@ import 'package:loja_flyinghigh/app/model/itens_pedido.dart';
 import 'package:loja_flyinghigh/app/model/user_endereco.dart';
 import 'package:loja_flyinghigh/app/providers/bairros_list.dart';
 import 'package:loja_flyinghigh/app/providers/itens_pedido_list.dart';
+import 'package:loja_flyinghigh/app/providers/ponto_config_provider.dart';
 import 'package:loja_flyinghigh/app/providers/user_data_provider.dart';
 import 'package:loja_flyinghigh/utils/constants.dart';
 import 'package:provider/provider.dart';
@@ -38,14 +39,27 @@ class FinalizarCompraState extends State<FinalizarCompra> {
     Provider.of<UserDataList>(context, listen: false)
         .getAdressByUserLogged()
         .then((value) => {
-              setState(() => isLoading = false),
               setState(
                 () => _finalValue =
                     double.parse(valorTotalCarrinho.replaceAll(",", ".")) +
                         num.parse(value[0].bairro['valor_frete'].toString()),
               ),
-              setState(() => _valorFrete =
-                  num.parse(value[0].bairro['valor_frete'].toString())),
+              setState(
+                () => _valorFrete =
+                    num.parse(value[0].bairro['valor_frete'].toString()),
+              ),
+              Provider.of<PontoConfigProvider>(context, listen: false)
+                  .getPontoConfig()
+                  .then((value) => {
+                        setState(() => _pontosConfig = value),
+                        print(value),
+                        dividerTotalValueGetPoints(
+                            _finalValue, _pontosConfig.valorDivisao),
+                        calculateValuePoints(
+                            _qtdPoints, double.parse(_pontosConfig.valorPonto)),
+                        calculateFinalValueWithDiscount(
+                            _finalValue, _valueDiscount)
+                      }),
             });
   }
 
@@ -55,6 +69,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
     //ChecarInternet().listener.cancel();
   }
 
+  var _pontosConfig;
   bool isLoading = true;
   final bool _autovalidate = false;
 //variaveis dos valores
@@ -102,6 +117,9 @@ class FinalizarCompraState extends State<FinalizarCompra> {
 
   var _idPedido;
   var _messageStoreClosed;
+  int _qtdPoints = 0;
+  num _finalResultWithDiscount = 00.00;
+  num _valueDiscount = 00.00;
 
   Future<void> getMessageClosedStore() async {
     var url = Uri.https(
@@ -111,6 +129,28 @@ class FinalizarCompraState extends State<FinalizarCompra> {
       var storeStatus = json.decode(response.body);
       setState(() {});
       _messageStoreClosed = storeStatus['message'];
+    });
+  }
+
+  dividerTotalValueGetPoints(num finalValue, int dividerValue) {
+    num qtdPoints = finalValue / dividerValue;
+    setState(() {
+      _qtdPoints = qtdPoints.toInt();
+      isLoading = false;
+    });
+  }
+
+  calculateFinalValueWithDiscount(num finalFalue, num valueDiscount) {
+    num finalResult = finalFalue - valueDiscount;
+    setState(() {
+      _finalResultWithDiscount = finalResult;
+    });
+  }
+
+  calculateValuePoints(int qtdPoints, num valuePoint) {
+    num valueDiscount = valuePoint * qtdPoints;
+    setState(() {
+      _valueDiscount = valueDiscount;
     });
   }
 
@@ -279,7 +319,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.95,
-                    height: MediaQuery.of(context).size.height * 0.25,
+                    height: MediaQuery.of(context).size.height * 0.15,
                     child: SizedBox(
                       width: width * 0.8,
                       child: isLoading
@@ -357,7 +397,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                                         SizedBox(
                                                           width: width * 0.6,
                                                           child: Text(
-                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero.toString()}, bairro ${userAdress[index].bairro['nome']}",
+                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero}, bairro ${userAdress[index].bairro['nome']}",
                                                             style: TextStyle(
                                                                 fontSize: 19),
                                                           ),
@@ -400,7 +440,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                                         SizedBox(
                                                           width: width * 0.6,
                                                           child: Text(
-                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero.toString()}, bairro ${userAdress[index].bairro['nome']}",
+                                                            "${userAdress[index].rua}, Nº ${userAdress[index].numero}, bairro ${userAdress[index].bairro['nome']}",
                                                             style: TextStyle(
                                                                 fontSize: 19),
                                                           ),
@@ -422,7 +462,8 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                               }),
                     ),
                   ),
-                  SizedBox(
+                  Container(
+                    margin: EdgeInsets.only(top: 5),
                     height: 60,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -445,7 +486,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                   ),
                   Padding(
                       padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.02),
+                          top: MediaQuery.of(context).size.height * 0.005),
                       child: Column(
                         children: [
                           Container(
@@ -547,6 +588,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                               setState(() => _obs = value);
                             })
                         : TextFormField(
+                            keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 10),
@@ -556,16 +598,58 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                               setState(() => _obs = value);
                             }),
                   ),
+                  isLoading
+                      ? SizedBox(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: LoadingAnimationWidget.hexagonDots(
+                                  color: Colors.black,
+                                  size: 25,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+
+                      : _finalValue >= _pontosConfig.valorDivisao && _pontosConfig.isActive != 0
+                          ? Container(
+                              width: width * 0.95,
+                              height: MediaQuery.of(context).size.height / 12,
+                              margin: EdgeInsets.only(bottom: 3),
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    width: width * 0.7,
+                                    child: Text(
+                                      "Parabéns você ganhou " +
+                                          _qtdPoints.toString() +
+                                          " ponto(s) de desconto:",
+                                      style: GoogleFonts.nanumGothic(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          : Container(),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.95,
-                    margin: EdgeInsets.only(bottom: 50, top: 10),
+                    margin: EdgeInsets.only(bottom: 50, top: 5),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           width: width,
                           height: MediaQuery.of(context).size.height / 25,
-                          margin: EdgeInsets.only(bottom: 3),
+                          margin: EdgeInsets.only(bottom: 8),
                           alignment: Alignment.centerLeft,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -574,7 +658,7 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                 "Valor do frete",
                                 style: GoogleFonts.nanumGothic(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                               isLoading
@@ -596,8 +680,8 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                   : Text(
                                       "R\$" + _valorFrete.toString(),
                                       style: GoogleFonts.nanumGothic(
-                                        fontSize: 21,
-                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                             ],
@@ -605,17 +689,18 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                         ),
                         Container(
                           width: width,
-                          height: MediaQuery.of(context).size.height / 25,
+                          height: MediaQuery.of(context).size.height / 12,
                           margin: EdgeInsets.only(bottom: 3),
                           alignment: Alignment.centerLeft,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "Valor total do pedido:",
                                 style: GoogleFonts.nanumGothic(
                                   fontSize: 21,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                               isLoading
@@ -634,13 +719,42 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                         ],
                                       ),
                                     )
-                                  : Text(
-                                      "R\$" + _finalValue.toStringAsFixed(2),
-                                      style: GoogleFonts.nanumGothic(
-                                        fontSize: 21,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
+                                  : _qtdPoints >= 1 && _pontosConfig.isActive != 0
+                                      ? Column(
+                                          children: [
+                                            Text(
+                                              "R\$" +
+                                                  _finalValue
+                                                      .toStringAsFixed(2),
+                                              style: GoogleFonts.nanumGothic(
+                                                  decoration: TextDecoration
+                                                      .lineThrough,
+                                                  decorationThickness: 1.8,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.red),
+                                            ),
+                                            Text(
+                                              "R\$" +
+                                                  _finalResultWithDiscount
+                                                      .toStringAsFixed(2),
+                                              style: GoogleFonts.nanumGothic(
+                                                  fontSize: 21,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.green),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(
+                                          child: Text(
+                                            "R\$" +
+                                                _finalValue.toStringAsFixed(2),
+                                            style: GoogleFonts.nanumGothic(
+                                                fontSize: 21,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.red),
+                                          ),
+                                        ),
                             ],
                           ),
                         ),
@@ -661,6 +775,15 @@ class FinalizarCompraState extends State<FinalizarCompra> {
                                     );
                                     getMessageClosedStore();
                                     guardarDadosEntrega();
+                                    _finalResultWithDiscount != 00.00
+                                        ? setState(() {
+                                            _finalValue =
+                                                _finalResultWithDiscount;
+                                          })
+                                        : setState(() {
+                                            _finalValue =
+                                                _finalValue;
+                                          });
                                     cadastroPedido(
                                         _finalValue,
                                         _selectedPayment,
